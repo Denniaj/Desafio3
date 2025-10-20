@@ -146,3 +146,69 @@ impl HelloContract {
     }
 }
 
+// Reto adicional 1: Estadisticas por usuario   
+
+ContadorPorUsuario(Address),
+
+let user_key = DataKey::ContadorPorUsuario(usuario.clone());
+let user_count: u32 = env.storage()
+    .instance()
+    .get(&user_key)
+    .unwrap_or(0);
+env.storage()
+    .instance()
+    .set(&user_key, &(user_count + 1));
+
+    pub fn get_contador_usuario(env: Env, usuario: Address) -> u32 {
+        env.storage()
+            .instance()
+            .get(&DataKey::ContadorPorUsuario(usuario))
+            .unwrap_or(0)
+    }
+    
+// Reto adicional 2: transfer_admin
+pub fn transfer_admin(
+    env: Env,
+    caller: Address,
+    nuevo_admin: Address
+) -> Result<(), Error> {
+
+    let admin: Address = env.storage()
+        .instance()
+        .get(&DataKey::Admin)
+        .ok_or(Error::NoInicializado)?;
+
+    if caller != admin {
+        return Err(Error::NoAutorizado);
+    }
+
+
+    env.storage()
+        .instance()
+        .set(&DataKey::Admin, &nuevo_admin);
+
+    Ok(())
+}
+
+// Reto adicional 3: Agregar límite de longitud configurable
+pub fn set_limite(
+    env: Env,
+    caller: Address,
+    limite: u32
+) -> Result<(), Error> {
+  
+    let admin: Address = env.storage()
+        .instance()
+        .get(&DataKey::Admin)
+        .ok_or(Error::NoInicializado)?;
+
+    if caller != admin {
+        return Err(Error::NoAutorizado);
+    }
+
+    env.storage()
+        .instance()
+        .set(&DataKey::LimiteCaracteres, &limite);
+
+    Ok(())
+}
